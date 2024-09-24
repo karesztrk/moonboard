@@ -1,20 +1,29 @@
 import { invoke } from "@tauri-apps/api/core";
 
-let greetInputEl: HTMLInputElement | null;
-let greetMsgEl: HTMLElement | null;
+async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
+  // eslint-disable-next-line
+  const target = e.target as HTMLFormElement;
+  const data = new FormData(target, e.submitter);
+  const key = (data.get("key") as string | null) || "";
 
-async function animate() {
-  if (greetMsgEl && greetInputEl) {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    greetMsgEl.textContent = await invoke("animate");
+  if (!key || key.length === 0) {
+    return;
   }
+
+  invoke("light_on_key", { key: key.charAt(0) })
+    .then((result) => {
+      // eslint-disable-next-line
+      console.log(result);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  greetInputEl = document.querySelector("#greet-input");
-  greetMsgEl = document.querySelector("#greet-msg");
-  document.querySelector("#greet-form")?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    animate();
-  });
+  const form = document.querySelector("#greet-form") as HTMLFormElement | null;
+  if (form) {
+    form.addEventListener("submit", handleSubmit);
+  }
 });

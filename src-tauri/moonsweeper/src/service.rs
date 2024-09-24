@@ -9,7 +9,6 @@ use super::model::*;
 
 pub trait Animation {
     fn play(&self, app: &Kontroll) -> impl Future<Output = ()> {
-        println!("playing");
         async {
             self.run(app).await;
             self.clean(app).await;
@@ -31,6 +30,27 @@ pub struct Wipe {
     speed: f64,
     velocity: f64,
     keyboard: Keyboard,
+}
+
+pub struct SingleKey {
+    keyboard: Keyboard,
+    char: char,
+    color: Color,
+}
+
+impl SingleKey {
+    pub fn new(keyboard: Keyboard, char: char) -> Self {
+        let mut rng = rand::thread_rng();
+
+        let r = rng.gen_range(0..255);
+        let g = rng.gen_range(0..255);
+        let b = rng.gen_range(0..255);
+        Self {
+            color: Color { r, g, b },
+            keyboard,
+            char,
+        }
+    }
 }
 
 impl Sequence {
@@ -59,7 +79,7 @@ impl Sequence {
     }
 
     async fn left(&self, app: &Kontroll) {
-        let layout = self.keyboard.layout;
+        let layout = self.keyboard.model_layout;
         let height = layout.len();
         let width = layout[0].len();
 
@@ -71,7 +91,7 @@ impl Sequence {
     }
 
     async fn right(&self, app: &Kontroll) {
-        let layout = self.keyboard.layout;
+        let layout = self.keyboard.model_layout;
         let height = layout.len();
         let width = layout[0].len();
 
@@ -135,7 +155,7 @@ impl Wipe {
     }
 
     async fn clear_column(&self, col: usize, app: &Kontroll) {
-        let height = self.keyboard.layout.len();
+        let height = self.keyboard.model_layout.len();
 
         for x in 0..height {
             let position = self.get_position(Coord { x, y: col });
@@ -146,7 +166,7 @@ impl Wipe {
     }
 
     async fn left_right(&self, app: &Kontroll) {
-        let layout = self.keyboard.layout;
+        let layout = self.keyboard.model_layout;
         let height = layout.len();
         let width = layout[0].len();
 
@@ -170,7 +190,7 @@ impl Wipe {
     }
 
     async fn right_left(&self, app: &Kontroll) {
-        let layout = self.keyboard.layout;
+        let layout = self.keyboard.model_layout;
         let height = layout.len();
         let width = layout[0].len();
 
@@ -200,6 +220,22 @@ impl Animation for Wipe {
         for _ in 0..3 {
             self.left_right(&app).await;
             self.right_left(&app).await;
+        }
+    }
+
+    async fn clean(&self, app: &Kontroll) {
+        let _ = app.restore_rgb_leds().await;
+    }
+}
+
+impl Animation for SingleKey {
+    async fn run(&self, app: &Kontroll) {
+        for _ in 0..3 {
+            let position = self.keyboard.get_char_position(self.char);
+            if position != util::XX {
+                let Color { r, g, b } = self.color;
+                let _ = app.set_rgb_led(position, r, g, b, 0).await;
+            }
         }
     }
 
