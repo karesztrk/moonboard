@@ -24,7 +24,8 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             commands::animation::animate,
-            commands::animation::light_on_key
+            commands::animation::light_on_key,
+            commands::animation::clear
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

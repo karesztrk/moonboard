@@ -1,6 +1,6 @@
 use moonsweeper::{
     model::{Keyboard, KeyboardModel::Moonlander},
-    service::{Animation, SingleKey, Wipe},
+    service::{Animation, Clear, SingleKey, Wipe},
 };
 use tauri::State;
 
@@ -19,6 +19,15 @@ pub async fn animate(app: State<'_, AppState>) -> Result<(), String> {
 pub async fn light_on_key(app: State<'_, AppState>, key: char) -> Result<(), String> {
     let moonlander = Keyboard::new(Moonlander);
     let animation = SingleKey::new(moonlander, key);
+    let api = &app.api;
+    animation.run(api).await;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn clear(app: State<'_, AppState>) -> Result<(), String> {
+    let moonlander = Keyboard::new(Moonlander);
+    let animation = Clear::new(moonlander);
     let api = &app.api;
     animation.run(api).await;
     Ok(())

@@ -38,6 +38,20 @@ pub struct SingleKey {
     color: Color,
 }
 
+pub struct Clear {
+    keyboard: Keyboard,
+    color: Color,
+}
+
+impl Clear {
+    pub fn new(keyboard: Keyboard) -> Self {
+        Self {
+            color: Color::black(),
+            keyboard,
+        }
+    }
+}
+
 impl SingleKey {
     pub fn new(keyboard: Keyboard, char: char) -> Self {
         let mut rng = rand::thread_rng();
@@ -237,6 +251,17 @@ impl Animation for SingleKey {
                 let _ = app.set_rgb_led(position, r, g, b, 0).await;
             }
         }
+    }
+
+    async fn clean(&self, app: &Kontroll) {
+        let _ = app.restore_rgb_leds().await;
+    }
+}
+
+impl Animation for Clear {
+    async fn run(&self, app: &Kontroll) {
+        let Color { r, g, b } = self.color;
+        let _ = app.set_rgb_all(r, g, b, 0).await;
     }
 
     async fn clean(&self, app: &Kontroll) {

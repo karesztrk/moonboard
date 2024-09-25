@@ -34,6 +34,12 @@ pub struct Color {
     pub b: u8,
 }
 
+impl Color {
+    pub fn black() -> Self {
+        Self { r: 0, g: 0, b:0 }
+    }
+}
+
 impl Keyboard {
     pub fn new(model: KeyboardModel) -> Self {
         return match model {

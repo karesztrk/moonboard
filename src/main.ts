@@ -1,24 +1,40 @@
 import { invoke } from "@tauri-apps/api/core";
+import { Text } from "./components/Text";
 
 async function handleSubmit(e: SubmitEvent) {
   e.preventDefault();
-  // eslint-disable-next-line
   const target = e.target as HTMLFormElement;
   const data = new FormData(target, e.submitter);
-  const key = (data.get("key") as string | null) || "";
+  const keyData = (data.get("key") as string | null) || "";
 
-  if (!key || key.length === 0) {
+  if (!keyData || keyData.length === 0) {
     return;
   }
 
-  invoke("light_on_key", { key: key.charAt(0) })
+  const key = keyData.charAt(0);
+
+  invoke("light_on_key", { key })
     .then((result) => {
-      // eslint-disable-next-line
       console.log(result);
     })
     .catch((error) => {
       console.error(error);
     });
+  target.reset();
+
+  window.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.key === key) {
+      console.log("key down", e.key);
+
+      invoke("clear")
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  });
 }
 
 window.addEventListener("DOMContentLoaded", () => {
