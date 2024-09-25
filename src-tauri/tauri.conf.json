@@ -1,10 +1,25 @@
 {
-  "$schema": "https://schema.tauri.app/config/1",
+  "$schema": "https://schema.tauri.app/config/2.0.0-rc",
+  "productName": "moonboard",
+  "version": "0.1.0",
+  "identifier": "com.moonboard.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420"
+    "frontendDist": "../build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Moonboard",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
@@ -16,23 +31,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "productName": "moonboard",
-  "mainBinaryName": "moonboard",
-  "version": "0.1.0",
-  "identifier": "com.moonboard.app",
-  "plugins": {},
-  "app": {
-    "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "moonboard",
-        "width": 800,
-        "height": 600
-      }
-    ],
-    "security": {
-      "csp": null
-    }
   }
 }

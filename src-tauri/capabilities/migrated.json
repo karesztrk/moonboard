@@ -1,13 +1,8 @@
 {
-  "identifier": "migrated",
-  "description": "permissions that were migrated from v1",
-  "local": true,
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "core:default",
-    "shell:allow-open",
-    "shell:default"
-  ]
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": ["core:default", "shell:allow-open"]
 }
+
