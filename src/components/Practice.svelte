@@ -6,52 +6,93 @@
   let { text: txt, author } = quotes[Math.floor(Math.random() * quotes.length)];
   let letters = txt.split("");
   $: caret = 0;
+  $: initialCaretPosition = 0;
   $: finish = caret === letters.length;
+  $: running = false;
 
   // async function greet() {
   //   greetMsg = await invoke("greet", { name });
   // }
   //
+  const updateCaretPosition = (newPosition = 0) => {
+    const delta = newPosition - initialCaretPosition;
+    carretElement.style.translate = `${delta}px`;
+  };
+
   const onKeyDown = (e: KeyboardEvent) => {
-    console.log(e.key, e.shiftKey);
     if (e.key === letters[caret]) {
       caret++;
+      measureCaretPosition();
+    }
+  };
+
+  const getCurrentLetter = () => {
+    return document.querySelector('[data-current="true"]');
+  };
+
+  const measureCaretPosition = () => {
+    const current = getCurrentLetter();
+    if (current) {
+      const newPosition = current.getBoundingClientRect().right;
+      updateCaretPosition(newPosition);
+    }
+  };
+
+  const measureInitialCaretPosition = () => {
+    const current = getCurrentLetter();
+    if (current) {
+      initialCaretPosition = current.getBoundingClientRect().left;
     }
   };
 
   const restart = () => {
     caret = 0;
+    updateCaretPosition(initialCaretPosition);
   };
 
-  const focus = () => {
-    setTimeout(() => {
-      ref.focus();
-      console.log(document.activeElement);
-    }, 0);
+  const stop = () => {
+    running = false;
   };
 
-  let ref: HTMLInputElement;
+  const start = () => {
+    running = true;
+  };
+
+  const focusInput = () => {
+    inputElement.focus();
+  };
+
+  let inputElement: HTMLInputElement;
+  let carretElement: HTMLDivElement;
 
   onMount(() => {
-    focus();
+    setTimeout(() => {
+      focusInput();
+      measureInitialCaretPosition();
+    }, 0);
   });
 </script>
 
-<input
-  bind:this={ref}
-  type="text"
-  autocomplete="off"
-  autocapitalize="none"
-  autocorrect="off"
-  spellcheck="false"
-  on:keydown|preventDefault={onKeyDown}
-  on:blur={focus}
-/>
-<blockquote>
+<blockquote on:click={focusInput}>
+  <input
+    bind:this={inputElement}
+    type="text"
+    autocomplete="off"
+    autocapitalize="none"
+    autocorrect="off"
+    spellcheck="false"
+    on:keydown|preventDefault={onKeyDown}
+    on:blur={stop}
+    on:focus={start}
+  />
   <p>
-    <caret />
+    <caret class:running={running && !finish} bind:this={carretElement} />
     {#each letters as letter, i}
-      <letter style="opacity: {caret > i ? 1 : 0.25}">{letter}</letter>
+      <letter
+        class:correct={i < caret}
+        class:incorrect={i >= caret}
+        data-current={i === caret ? "true" : undefined}>{letter}</letter
+      >
     {/each}
     {#if finish}
       <span>🎉</span>
@@ -68,22 +109,32 @@
 <style>
   blockquote {
     --caret-color: #000;
+    filter: blur(4px);
   }
 
   blockquote > p {
     position: relative;
   }
 
+  blockquote:focus-within {
+    filter: none;
+  }
+
   caret {
     position: absolute;
-    display: block;
+    display: none;
     height: 1em;
     width: 0.1em;
     top: 0;
     left: 0;
     font-size: 1.5rem;
-    animation: linear 1s infinite alternate blink;
     background-color: var(--caret-color);
+    transition: translate 200ms ease-out;
+  }
+
+  caret.running {
+    display: block;
+    animation: linear 1s infinite alternate blink;
   }
 
   input {
@@ -96,6 +147,14 @@
     margin: -1;
     padding: 0;
     border: 0;
+  }
+
+  .correct {
+    opacity: 1;
+  }
+
+  .incorrect {
+    opacity: 0.25;
   }
 
   @keyframes blink {
