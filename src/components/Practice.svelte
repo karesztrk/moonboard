@@ -2,12 +2,14 @@
   import { onMount } from "svelte";
   // import { invoke } from "@tauri-apps/api/core";
   import quotes from "@/assets/quote.json";
+  import Caret from "./Caret.svelte";
 
   let { text: txt, author } = quotes[Math.floor(Math.random() * quotes.length)];
   let letters = txt.split("");
-  $: caret = 0;
+  $: wordIndex = 0;
   $: initialCaretPosition = 0;
-  $: finish = caret === letters.length;
+  $: caretPosition = 0;
+  $: finish = wordIndex === letters.length;
   $: running = false;
 
   // async function greet() {
@@ -15,23 +17,31 @@
   // }
   //
   const updateCaretPosition = (newPosition = 0) => {
-    const delta = newPosition - initialCaretPosition;
-    carretElement.style.translate = `${delta}px`;
+    caretPosition = newPosition - initialCaretPosition;
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === letters[caret]) {
-      caret++;
-      measureCaretPosition();
+    if (e.key === letters[wordIndex]) {
+      wordIndex++;
+      moveCaret(getCurrentLetter);
+    } else if (e.key === "Backspace" && wordIndex === 1) {
+      restart();
+    } else if (e.key === "Backspace" && wordIndex > 0) {
+      wordIndex--;
+      moveCaret(getLastGuess);
     }
   };
 
   const getCurrentLetter = () => {
-    return document.querySelector('[data-current="true"]');
+    return document.querySelector("[data-current]");
   };
 
-  const measureCaretPosition = () => {
-    const current = getCurrentLetter();
+  const getLastGuess = () => {
+    return document.querySelector("[data-previous-guess]");
+  };
+
+  const moveCaret = (letterFn = getCurrentLetter) => {
+    const current = letterFn();
     if (current) {
       const newPosition = current.getBoundingClientRect().right;
       updateCaretPosition(newPosition);
@@ -46,7 +56,7 @@
   };
 
   const restart = () => {
-    caret = 0;
+    wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
   };
 
@@ -63,7 +73,6 @@
   };
 
   let inputElement: HTMLInputElement;
-  let carretElement: HTMLDivElement;
 
   onMount(() => {
     setTimeout(() => {
@@ -86,12 +95,16 @@
     on:focus={start}
   />
   <p>
-    <caret class:running={running && !finish} bind:this={carretElement} />
+    <Caret
+      running={running && !finish}
+      style={`translate: ${caretPosition}px`}
+    />
     {#each letters as letter, i}
       <letter
-        class:correct={i < caret}
-        class:incorrect={i >= caret}
-        data-current={i === caret ? "true" : undefined}>{letter}</letter
+        class:correct={i < wordIndex}
+        class:incorrect={i >= wordIndex}
+        data-previous-guess={i === wordIndex - 2 ? "" : undefined}
+        data-current={i === wordIndex ? "" : undefined}>{letter}</letter
       >
     {/each}
     {#if finish}
@@ -118,23 +131,6 @@
 
   blockquote:focus-within {
     filter: none;
-  }
-
-  caret {
-    position: absolute;
-    display: none;
-    height: 1em;
-    width: 0.1em;
-    top: 0;
-    left: 0;
-    font-size: 1.5rem;
-    background-color: var(--caret-color);
-    transition: translate 200ms ease-out;
-  }
-
-  caret.running {
-    display: block;
-    animation: linear 1s infinite alternate blink;
   }
 
   input {
