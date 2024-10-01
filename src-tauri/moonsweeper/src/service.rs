@@ -39,15 +39,13 @@ pub struct SingleKey {
 }
 
 pub struct Clear {
-    keyboard: Keyboard,
     color: Color,
 }
 
 impl Clear {
-    pub fn new(keyboard: Keyboard) -> Self {
+    pub fn new() -> Self {
         Self {
             color: Color::black(),
-            keyboard,
         }
     }
 }

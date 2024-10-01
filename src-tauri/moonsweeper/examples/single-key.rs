@@ -1,7 +1,7 @@
 use kontroll::Kontroll;
 use moonsweeper::{
-    model::{Keyboard, KeyboardModel::Moonlander},
-    service::{Animation, SingleKey },
+    model::{Keyboard, KeyboardLayout::Norman, KeyboardModel::Moonlander},
+    service::{Animation, SingleKey},
 };
 
 #[tokio::main]
@@ -14,7 +14,7 @@ async fn main() {
 
     let api = api_result.unwrap();
 
-    let moonlander = Keyboard::new(Moonlander);
-    let animation = SingleKey::new(moonlander,  'y');
+    let moonlander = Keyboard::new(Moonlander, Norman);
+    let animation = SingleKey::new(moonlander, 'y');
     animation.run(&api).await;
 }

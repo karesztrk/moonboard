@@ -1,4 +1,11 @@
-use crate::util::{self,  XX};
+use crate::util::{self, XX};
+use serde::Deserialize;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+pub enum KeyboardLayout {
+    Qwerty,
+    Norman,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KeyboardModel {
@@ -36,18 +43,23 @@ pub struct Color {
 
 impl Color {
     pub fn black() -> Self {
-        Self { r: 0, g: 0, b:0 }
+        Self { r: 0, g: 0, b: 0 }
     }
 }
 
 impl Keyboard {
-    pub fn new(model: KeyboardModel) -> Self {
-        return match model {
-            KeyboardModel::Moonlander => Keyboard {
-                model_layout: util::MOONLANDER_MODEL_LAYOUT,
-                key_layout: util::MOONLANDER_KEY_LAYOUT,
-            },
+    pub fn new(model: KeyboardModel, layout: KeyboardLayout) -> Self {
+        let model_layout_data = match model {
+            KeyboardModel::Moonlander => util::MODEL_LAYOUT,
         };
+        let key_layout_data = match layout {
+            KeyboardLayout::Qwerty => util::QWERTY_LAYOUT,
+            KeyboardLayout::Norman => util::NORMAN_LAYOUT,
+        };
+        Self {
+            model_layout: model_layout_data,
+            key_layout: key_layout_data,
+        }
     }
 
     pub fn get_position(&self, coord: Coord) -> usize {
@@ -55,8 +67,8 @@ impl Keyboard {
     }
 
     pub fn get_char_position(&self, char: char) -> usize {
-         for x in 0..util::MOONLANDER_MODEL_LAYOUT.len() {
-             for y in 0..util::MOONLANDER_MODEL_LAYOUT[x].len() {
+        for x in 0..util::MODEL_LAYOUT.len() {
+            for y in 0..util::MODEL_LAYOUT[x].len() {
                 if self.key_layout[x][y] == char {
                     return self.model_layout[x][y];
                 }

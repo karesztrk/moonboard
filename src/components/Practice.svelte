@@ -1,21 +1,22 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
-  // import { invoke } from "@tauri-apps/api/core";
   import quotes from "@/assets/quote.json";
   import Caret from "./Caret.svelte";
 
   let { text: txt, author } = quotes[Math.floor(Math.random() * quotes.length)];
-  let letters = txt.split("");
+  let letters = txt.toLowerCase().split("");
   $: wordIndex = 0;
   $: initialCaretPosition = 0;
   $: caretPosition = 0;
   $: finish = wordIndex === letters.length;
   $: running = false;
 
-  // async function greet() {
-  //   greetMsg = await invoke("greet", { name });
-  // }
-  //
+  const dispatch = createEventDispatcher();
+
+  const emitChangeEvent = () => {
+    dispatch("letterchange", { letter: letters[wordIndex] });
+  };
   const updateCaretPosition = (newPosition = 0) => {
     caretPosition = newPosition - initialCaretPosition;
   };
@@ -23,11 +24,14 @@
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === letters[wordIndex]) {
       wordIndex++;
+      emitChangeEvent();
       moveCaret(getCurrentLetter);
     } else if (e.key === "Backspace" && wordIndex === 1) {
       restart();
+      emitChangeEvent();
     } else if (e.key === "Backspace" && wordIndex > 0) {
       wordIndex--;
+      emitChangeEvent();
       moveCaret(getLastGuess);
     }
   };
@@ -75,6 +79,7 @@
   let inputElement: HTMLInputElement;
 
   onMount(() => {
+    emitChangeEvent();
     setTimeout(() => {
       focusInput();
       measureInitialCaretPosition();
@@ -151,17 +156,5 @@
 
   .incorrect {
     opacity: 0.25;
-  }
-
-  @keyframes blink {
-    0%,
-    50% {
-      opacity: 1;
-    }
-
-    51%,
-    100% {
-      opacity: 0;
-    }
   }
 </style>

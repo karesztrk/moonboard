@@ -1,5 +1,5 @@
 #[rustfmt::skip]
-pub const MOONLANDER_MODEL_LAYOUT: [[usize; 14]; 6] = [
+pub const MODEL_LAYOUT: [[usize; 14]; 6] = [
     [  0,  1,  2,  3,  4,  5,  6,      36, 37, 38, 39, 40, 41, 42 ],
     [  7,  8,  9, 10, 11, 12, 13,      43, 44, 45, 46, 47, 48, 49 ],
     [ 14, 15, 16, 17, 18, 19, 20,      50, 51, 52, 53, 54, 55, 56 ],
@@ -8,13 +8,23 @@ pub const MOONLANDER_MODEL_LAYOUT: [[usize; 14]; 6] = [
     [ XX, XX, XX, 32, 33, 34, 35,      68, 69, 70, 71, XX, XX, XX ],
 ];
 pub const XX: usize = 99;
-pub const CR: char = ' ';
+pub const NA: char = '$';
 #[rustfmt::skip]
-pub const MOONLANDER_KEY_LAYOUT: [[char; 14]; 6] = [
-    [ CR,  CR,  CR,  CR,  CR,  CR, CR,     CR,  CR,  CR,  CR,  CR,  CR, CR, ],
-    [ CR, 'q', 'w', 'd', 'f', 'k', CR,     CR, 'j', 'u', 'r', 'l', 'é', CR, ],
-    [ CR, 'a', 's', 'e', 't', 'g', CR,     CR, 'y', 'n', 'i', 'o', 'h', CR, ],
-    [ CR, 'z', 'x', 'c', 'v', 'b', CR,     CR, 'p', 'm', ',', '.', '-', CR, ],
-    [ CR,  CR,  CR,  CR,  CR,  CR, CR,     CR,  CR,  CR,  CR,  CR,  CR, CR, ],
-    [ CR,  CR,  CR,  CR,  CR,  CR, CR,     CR,  CR,  CR,  CR,  CR,  CR, CR, ],
+pub const QWERTY_LAYOUT: [[char; 14]; 6] = [
+    [ NA,  NA,  NA,  NA,  NA,  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
+    [ NA, 'q', 'w', 'e', 'r', 't', NA,     NA, 'z', 'u', 'i', 'o', 'p', NA, ],
+    [ NA, 'a', 's', 'd', 'f', 'g', NA,     NA, 'h', 'j', 'k', 'l', 'é', NA, ],
+    [ NA, 'x', 'y', 'c', 'v', 'b', NA,     NA, 'm', 'n', ',', '.', '-', NA, ],
+    [ NA,  NA,  NA,  NA,  NA,  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
+    [ NA,  NA,  NA,  NA,  ' ',  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
+];
+
+#[rustfmt::skip]
+pub const NORMAN_LAYOUT: [[char; 14]; 6] = [
+    [ NA,  NA,  NA,  NA,  NA,  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
+    [ NA, 'q', 'w', 'd', 'f', 'k', NA,     NA, 'j', 'u', 'r', 'l', 'é', NA, ],
+    [ NA, 'a', 's', 'e', 't', 'g', NA,     NA, 'y', 'n', 'i', 'o', 'h', NA, ],
+    [ NA, 'z', 'x', 'c', 'v', 'b', NA,     NA, 'p', 'm', ',', '.', '-', NA, ],
+    [ NA,  NA,  NA,  NA,  NA,  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
+    [ NA,  NA,  NA,  NA,  ' ',  NA, NA,     NA,  NA,  NA,  NA,  NA,  NA, NA, ],
 ];

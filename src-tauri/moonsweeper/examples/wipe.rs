@@ -1,6 +1,6 @@
 use kontroll::Kontroll;
 use moonsweeper::{
-    model::{Keyboard, KeyboardModel::Moonlander},
+    model::{Keyboard, KeyboardLayout::Norman, KeyboardModel::Moonlander},
     service::{Animation, Wipe},
 };
 
@@ -14,7 +14,7 @@ async fn main() {
 
     let api = api_result.unwrap();
 
-    let moonlander = Keyboard::new(Moonlander);
+    let moonlander = Keyboard::new(Moonlander, Norman);
     let animation = Wipe::new(moonlander);
     animation.run(&api).await;
     animation.clean(&api).await;
