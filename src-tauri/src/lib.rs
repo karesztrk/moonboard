@@ -23,7 +23,8 @@ pub fn run() {
             commands::example::greet,
             commands::animation::animate,
             commands::animation::light_on_key,
-            commands::animation::clear
+            commands::animation::clear,
+            commands::animation::reset
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -10,6 +10,10 @@
 
   const layouts = ["Norman", "Qwerty"];
 
+  async function resetLight() {
+    await invoke("reset", {});
+  }
+
   async function lightOnKey(key: string) {
     await invoke("light_on_key", { key, layout });
   }
@@ -46,6 +50,8 @@
   const onRestart = () => {
     state = "READY";
     text = pickRandomQuote().text;
+
+    resetLight();
   };
 </script>
 

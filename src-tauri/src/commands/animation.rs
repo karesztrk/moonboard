@@ -35,3 +35,10 @@ pub async fn clear(app: State<'_, AppState>) -> Result<(), String> {
     animation.run(api).await;
     Ok(())
 }
+
+#[tauri::command]
+pub async fn reset(app: State<'_, AppState>) -> Result<(), String> {
+    let api = &app.api;
+    let _ = api.restore_rgb_leds().await;
+    Ok(())
+}
