@@ -1,11 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
-  import quotes from "@/assets/quote.json";
   import Caret from "./Caret.svelte";
 
-  let { text: txt, author } = quotes[Math.floor(Math.random() * quotes.length)];
-  let letters = txt.toLowerCase().split("");
+  export let text = "";
+
+  const letters = text.toLowerCase().split("");
   $: wordIndex = 0;
   $: initialCaretPosition = 0;
   $: caretPosition = 0;
@@ -17,6 +17,7 @@
   const emitChangeEvent = () => {
     dispatch("letterchange", { letter: letters[wordIndex] });
   };
+
   const updateCaretPosition = (newPosition = 0) => {
     caretPosition = newPosition - initialCaretPosition;
   };
@@ -117,9 +118,6 @@
     {/if}
   </p>
 </blockquote>
-<p>
-  —{author}
-</p>
 {#if finish}
   <button on:click={restart}>Restart</button>
 {/if}
