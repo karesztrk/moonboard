@@ -2,15 +2,16 @@
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
+  import type { State } from "@/routes/types";
 
   export let text = "";
+  export let state = "READY" as State;
 
   const letters = text.toLowerCase().split("");
   $: wordIndex = 0;
   $: initialCaretPosition = 0;
   $: caretPosition = 0;
   $: finish = wordIndex === letters.length;
-  $: running = false;
 
   const dispatch = createEventDispatcher();
 
@@ -28,7 +29,7 @@
       emitChangeEvent();
       moveCaret(getCurrentLetter);
     } else if (e.key === "Backspace" && wordIndex === 1) {
-      restart();
+      onRestart();
       emitChangeEvent();
     } else if (e.key === "Backspace" && wordIndex > 0) {
       wordIndex--;
@@ -60,17 +61,18 @@
     }
   };
 
-  const restart = () => {
+  const onRestart = () => {
     wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
+    dispatch("restart");
   };
 
-  const stop = () => {
-    running = false;
+  const onPause = () => {
+    dispatchEvent(new CustomEvent("pause"));
   };
 
-  const start = () => {
-    running = true;
+  const onStart = () => {
+    dispatchEvent(new CustomEvent("start"));
   };
 
   const focusInput = () => {
@@ -97,12 +99,12 @@
     autocorrect="off"
     spellcheck="false"
     on:keydown|preventDefault={onKeyDown}
-    on:blur={stop}
-    on:focus={start}
+    on:blur={onPause}
+    on:focus={onStart}
   />
   <p>
     <Caret
-      running={running && !finish}
+      running={state === "RUNNING" && !finish}
       style={`translate: ${caretPosition}px`}
     />
     {#each letters as letter, i}
@@ -119,7 +121,7 @@
   </p>
 </blockquote>
 {#if finish}
-  <button on:click={restart}>Restart</button>
+  <button on:click={onRestart}>Back</button>
 {/if}
 
 <style>
