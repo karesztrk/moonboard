@@ -8,6 +8,7 @@
 
 <style>
   caret {
+    --_caret-color: var(--pico-contrast);
     position: absolute;
     display: none;
     height: 1em;
@@ -15,7 +16,7 @@
     top: 0;
     left: 0;
     font-size: 1.5rem;
-    background-color: var(--caret-color);
+    background-color: var(--_caret-color);
     transition: translate 200ms ease-out;
   }
 

@@ -126,7 +126,6 @@
 
 <style>
   blockquote {
-    --caret-color: #000;
     filter: blur(4px);
   }
 
