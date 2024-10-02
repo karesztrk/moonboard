@@ -2,9 +2,12 @@
   import Practice from "@/components/Practice.svelte";
   import { invoke } from "@tauri-apps/api/core";
   import quotes from "@/assets/quote.json";
-  import type { State, Layout } from "@/types";
+  import type { Layout } from "@/types";
+  import type { State } from "@/store/store";
+  import { practiceMachine } from "@/store/store";
 
-  $: state = "READY" as State;
+  let state: State;
+  practiceMachine.subscribe((value) => (state = value));
   $: text = pickRandomQuote().text;
   $: layout = "Norman" as Layout;
 
@@ -31,24 +34,15 @@
   };
 
   const onSubmit = (e: SubmitEvent) => {
+    console.log(state);
     const target = e.target as HTMLFormElement;
     const data = new FormData(target);
 
     layout = data.get("layout") as Layout;
-    console.log(layout);
-    state = "RUNNING";
-  };
-
-  const onStart = () => {
-    state = "RUNNING";
-  };
-
-  const onPause = () => {
-    state = "PAUSED";
+    practiceMachine.send("START");
   };
 
   const onRestart = () => {
-    state = "READY";
     text = pickRandomQuote().text;
 
     resetLight();
@@ -59,7 +53,7 @@
   <h2>Practice</h2>
   <p>Practice typing by hitting the right keyboard buttons</p>
 
-  {#if state !== "RUNNING"}
+  {#if state === "idle"}
     <form on:submit|preventDefault={onSubmit}>
       <fieldset>
         <label for="layout">Layout</label>
@@ -76,13 +70,6 @@
       </div>
     </form>
   {:else}
-    <Practice
-      on:letterchange={onLetterChange}
-      on:start={onStart}
-      on:pause={onPause}
-      on:restart={onRestart}
-      {state}
-      {text}
-    />
+    <Practice on:letterchange={onLetterChange} {text} />
   {/if}
 </section>

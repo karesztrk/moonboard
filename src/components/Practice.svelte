@@ -2,10 +2,12 @@
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
-  import type { State } from "@/routes/types";
+  import { practiceMachine } from "@/store/store";
+  import type { State } from "@/store/store";
 
   export let text = "";
-  export let state = "READY" as State;
+  let state: State;
+  practiceMachine.subscribe((value) => (state = value));
 
   const letters = text.toLowerCase().split("");
   $: wordIndex = 0;
@@ -64,15 +66,15 @@
   const onRestart = () => {
     wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
-    dispatch("restart");
+    practiceMachine.send("STOP");
   };
 
   const onPause = () => {
-    dispatchEvent(new CustomEvent("pause"));
+    practiceMachine.send("PAUSE");
   };
 
   const onStart = () => {
-    dispatchEvent(new CustomEvent("start"));
+    practiceMachine.send("START");
   };
 
   const focusInput = () => {
@@ -104,7 +106,7 @@
   />
   <p>
     <Caret
-      running={state === "RUNNING" && !finish}
+      running={state === "running" && !finish}
       style={`translate: ${caretPosition}px`}
     />
     {#each letters as letter, i}
