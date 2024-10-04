@@ -1,21 +1,46 @@
 import machine from "./machine";
+import quotes from "@/assets/quote.json";
 
 export type State = "idle" | "running" | "paused" | "finished";
-type TimerEvent = "START" | "PAUSE" | "RESUME" | "STOP";
 
-export const practiceMachine = machine<State, TimerEvent>("idle", {
-  idle: {
-    START: () => "running",
+type Event = "START" | "PAUSE" | "RESUME" | "STOP";
+
+const pickRandomQuote = () => {
+  return quotes[Math.floor(Math.random() * quotes.length)];
+};
+
+export const practiceMachine = machine<State, Event, { quote: string }>(
+  "idle",
+  {
+    quote: "",
   },
-  running: {
-    PAUSE: () => "paused",
-    STOP: () => "idle",
+  {
+    idle: {
+      on: {
+        START: {
+          target: "running",
+          action: () => ({
+            quote: pickRandomQuote().text,
+          }),
+        },
+      },
+    },
+    running: {
+      on: {
+        PAUSE: { target: "paused" },
+        STOP: { target: "idle" },
+      },
+    },
+    paused: {
+      on: {
+        RESUME: { target: "running" },
+        STOP: { target: "idle" },
+      },
+    },
+    finished: {
+      on: {
+        STOP: { target: "idle" },
+      },
+    },
   },
-  paused: {
-    RESUME: () => "running",
-    STOP: () => "idle",
-  },
-  finished: {
-    STOP: () => "idle",
-  },
-});
+);

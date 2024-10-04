@@ -1,14 +1,11 @@
 <script lang="ts">
   import Practice from "@/components/Practice.svelte";
   import { invoke } from "@tauri-apps/api/core";
-  import quotes from "@/assets/quote.json";
   import type { Layout } from "@/types";
-  import type { State } from "@/store/store";
   import { practiceMachine } from "@/store/store";
+  import { onMount } from "svelte";
 
-  let state: State;
-  practiceMachine.subscribe((value) => (state = value));
-  $: text = pickRandomQuote().text;
+  $: ({ state } = $practiceMachine);
   $: layout = "Norman" as Layout;
 
   const layouts = ["Norman", "Qwerty"];
@@ -29,12 +26,7 @@
     clear().then(() => lightOnKey(e.detail.letter.toLowerCase()));
   };
 
-  const pickRandomQuote = () => {
-    return quotes[Math.floor(Math.random() * quotes.length)];
-  };
-
   const onSubmit = (e: SubmitEvent) => {
-    console.log(state);
     const target = e.target as HTMLFormElement;
     const data = new FormData(target);
 
@@ -42,17 +34,16 @@
     practiceMachine.send("START");
   };
 
-  const onRestart = () => {
-    text = pickRandomQuote().text;
-
-    resetLight();
-  };
+  onMount(() => {
+    return () => {
+      practiceMachine.send("STOP");
+    };
+  });
 </script>
 
 <section>
   <h2>Practice</h2>
   <p>Practice typing by hitting the right keyboard buttons</p>
-
   {#if state === "idle"}
     <form on:submit|preventDefault={onSubmit}>
       <fieldset>
@@ -70,6 +61,6 @@
       </div>
     </form>
   {:else}
-    <Practice on:letterchange={onLetterChange} {text} />
+    <Practice on:letterchange={onLetterChange} />
   {/if}
 </section>

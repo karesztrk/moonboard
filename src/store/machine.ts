@@ -4,31 +4,56 @@ type State = string;
 
 type Event = string;
 
-type TransitionFunction<S extends State> = (state: S) => S;
-
-// Generic transitions object type
-type Transitions<S extends State, E extends Event> = {
+type Config<S extends State, E extends Event, C> = {
   [K in S]: {
-    [J in E]?: TransitionFunction<S>;
+    on?: {
+      [J in E]?: {
+        target: S;
+        action?: (context: C) => Partial<C>;
+      };
+    };
   };
 };
 
-// Generic state machine interface
-interface StateMachine<S extends State, E extends Event> {
-  subscribe: (callback: (state: S) => void) => () => void;
+type MachineState<TState extends string, TContext> = {
+  state: TState;
+  context: TContext;
+};
+
+interface StateMachine<S extends State, E extends Event, C> {
+  subscribe: (callback: (state: MachineState<S, C>) => void) => () => void;
   send: (event: E) => void;
 }
 
-const createStateMachine = <S extends State, E extends Event>(
+const createStateMachine = <
+  S extends State,
+  E extends Event,
+  C extends Record<string, string | number | boolean>,
+>(
   initialState: S,
-  transitions: Transitions<S, E>,
-): StateMachine<S, E> => {
-  const { subscribe, update } = writable<S>(initialState);
+  initialContext: C,
+  config: Config<S, E, C>,
+): StateMachine<S, E, C> => {
+  const { subscribe, update } = writable<MachineState<S, C>>({
+    state: initialState,
+    context: initialContext,
+  });
 
   const send = (event: E) => {
-    update((state) => {
-      const transition = transitions[state][event];
-      return transition ? transition(state) : state;
+    update((current) => {
+      const stateConfig = config[current.state];
+      const transition = stateConfig.on?.[event];
+
+      if (!transition) return current;
+
+      const newContext = transition.action
+        ? { ...current.context, ...transition.action(current.context) }
+        : current.context;
+
+      return {
+        state: transition.target,
+        context: newContext,
+      };
     });
   };
 

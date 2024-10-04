@@ -3,13 +3,10 @@
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
   import { practiceMachine } from "@/store/store";
-  import type { State } from "@/store/store";
 
-  export let text = "";
-  let state: State;
-  practiceMachine.subscribe((value) => (state = value));
+  $: ({ state, context } = $practiceMachine);
+  $: letters = context.quote.toLowerCase().split("");
 
-  const letters = text.toLowerCase().split("");
   $: wordIndex = 0;
   $: initialCaretPosition = 0;
   $: caretPosition = 0;
@@ -63,7 +60,7 @@
     }
   };
 
-  const onRestart = () => {
+  const onBack = () => {
     wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
     practiceMachine.send("STOP");
@@ -73,8 +70,8 @@
     practiceMachine.send("PAUSE");
   };
 
-  const onStart = () => {
-    practiceMachine.send("START");
+  const onRestart = () => {
+    practiceMachine.send("RESUME");
   };
 
   const focusInput = () => {
@@ -102,7 +99,7 @@
     spellcheck="false"
     on:keydown|preventDefault={onKeyDown}
     on:blur={onPause}
-    on:focus={onStart}
+    on:focus={onRestart}
   />
   <p>
     <Caret
@@ -123,7 +120,7 @@
   </p>
 </blockquote>
 {#if finish}
-  <button on:click={onRestart}>Back</button>
+  <button on:click={onBack}>Back</button>
 {/if}
 
 <style>
