@@ -1,5 +1,5 @@
 import machine from "./machine";
-import quotes from "@/assets/quote.json";
+import quotes from "$lib/assets/quote.json";
 
 export type State = "idle" | "running" | "paused" | "finished";
 
@@ -9,7 +9,7 @@ const pickRandomQuote = () => {
   return quotes[Math.floor(Math.random() * quotes.length)];
 };
 
-export const practiceMachine = machine<State, Event, { quote: string }>(
+const practiceMachine = machine<State, Event, { quote: string }>(
   "idle",
   {
     quote: "",
@@ -44,3 +44,5 @@ export const practiceMachine = machine<State, Event, { quote: string }>(
     },
   },
 );
+
+export default practiceMachine;

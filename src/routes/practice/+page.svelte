@@ -1,29 +1,22 @@
 <script lang="ts">
-  import Practice from "@/components/Practice.svelte";
-  import { invoke } from "@tauri-apps/api/core";
-  import type { Layout } from "@/types";
-  import { practiceMachine } from "@/store/store";
+  import Practice from "$lib/components/Practice.svelte";
+  import type { Layout } from "$lib/types";
+  import practiceMachine from "$lib/stores/practice";
+  import services from "$lib/stores/services";
   import { onMount } from "svelte";
 
   $: ({ state } = $practiceMachine);
+
   $: layout = "Norman" as Layout;
 
   const layouts = ["Norman", "Qwerty"];
 
-  async function resetLight() {
-    await invoke("reset", {});
-  }
-
-  async function lightOnKey(key: string) {
-    await invoke("light_on_key", { key, layout });
-  }
-
-  async function clear() {
-    await invoke("clear", {});
-  }
-
   const onLetterChange = (e: CustomEvent<{ letter: string }>) => {
-    clear().then(() => lightOnKey(e.detail.letter.toLowerCase()));
+    $services.keyboard
+      .clear()
+      .then(() =>
+        $services.keyboard.lightOnKey(e.detail.letter.toLowerCase(), layout),
+      );
   };
 
   const onSubmit = (e: SubmitEvent) => {

@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
-  import { practiceMachine } from "@/store/store";
+  import practiceMachine from "$lib/stores/practice";
 
   $: ({ state, context } = $practiceMachine);
   $: letters = context.quote.toLowerCase().split("");
