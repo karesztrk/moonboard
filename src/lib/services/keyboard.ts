@@ -13,8 +13,11 @@ class KeyboardService {
     await invoke("clear", {});
   }
 
-  async animate() {
-    await invoke("animate", {});
+  async wipeAnimation() {
+    await invoke("wipe_animation", {});
+  }
+  async sequenceAnimation() {
+    await invoke("sequence_animation", {});
   }
 }
 

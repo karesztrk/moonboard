@@ -1,15 +1,28 @@
 use moonsweeper::{
-    model::{Keyboard, KeyboardLayout, KeyboardLayout::Norman, KeyboardModel::Moonlander},
-    service::{Animation, Clear, SingleKey, Wipe},
+    model::{
+        Keyboard,
+        KeyboardLayout::{self, Norman},
+        KeyboardModel::Moonlander,
+    },
+    service::{Animation, Clear, Sequence, SingleKey, Wipe},
 };
 use tauri::State;
 
 use crate::AppState;
 
 #[tauri::command]
-pub async fn animate(app: State<'_, AppState>) -> Result<(), String> {
+pub async fn wipe_animation(app: State<'_, AppState>) -> Result<(), String> {
     let moonlander = Keyboard::new(Moonlander, Norman);
     let animation = Wipe::new(moonlander);
+    let api = &app.api;
+    animation.play(api).await;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn sequence_animation(app: State<'_, AppState>) -> Result<(), String> {
+    let moonlander = Keyboard::new(Moonlander, Norman);
+    let animation = Sequence::new(moonlander);
     let api = &app.api;
     animation.play(api).await;
     Ok(())

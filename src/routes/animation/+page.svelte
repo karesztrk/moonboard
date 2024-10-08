@@ -1,9 +1,22 @@
 <script lang="ts">
   import services from "$lib/stores/services";
+  import type { Animation } from "$lib/types";
 
-  const animations = ["Wipe"];
+  const animations = ["Sequence", "Wipe"] as const;
   const onSubmit = (e: SubmitEvent) => {
-    $services.keyboard.clear().then(() => $services.keyboard.animate());
+    const target = e.target as HTMLFormElement;
+    const data = new FormData(target);
+
+    const name = data.get("name") as (typeof animations)[number];
+    switch (name) {
+      case "Wipe":
+        $services.keyboard.wipeAnimation();
+        break;
+      case "Sequence":
+        $services.keyboard.sequenceAnimation();
+      default:
+        break;
+    }
   };
 </script>
 

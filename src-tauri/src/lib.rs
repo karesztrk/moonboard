@@ -20,8 +20,8 @@ pub fn run() {
         })
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            commands::example::greet,
-            commands::animation::animate,
+            commands::animation::wipe_animation,
+            commands::animation::sequence_animation,
             commands::animation::light_on_key,
             commands::animation::clear,
             commands::animation::reset

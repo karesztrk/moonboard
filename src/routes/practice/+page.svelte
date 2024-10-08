@@ -1,15 +1,16 @@
 <script lang="ts">
   import Quote from "$lib/components/Quote.svelte";
-  import type { Layout } from "$lib/types";
   import practiceMachine, { type Event } from "$lib/stores/practice";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
 
   $: ({ state, context } = $practiceMachine);
 
-  $: layout = "Norman" as Layout;
-
   const layouts = ["Norman", "Qwerty"];
+
+  type Layout = (typeof layouts)[number];
+
+  $: layout = "Norman" as Layout;
 
   const onLetterChange = (e: CustomEvent<{ letter: string }>) => {
     $services.keyboard
@@ -27,8 +28,7 @@
     practiceMachine.send("START");
   };
 
-  const onEvent = (machineEvent: Event) => (e: Event) => {
-    e.stopPropagation();
+  const onEvent = (machineEvent: Event) => () => {
     practiceMachine.send(machineEvent);
   };
 
