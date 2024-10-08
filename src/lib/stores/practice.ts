@@ -9,19 +9,24 @@ const pickRandomQuote = () => {
   return quotes[Math.floor(Math.random() * quotes.length)];
 };
 
-const practiceMachine = machine<State, Event, { quote: string }>(
+const practiceMachine = machine<State, Event, { text: string; author: string }>(
   "idle",
   {
-    quote: "",
+    text: "",
+    author: "",
   },
   {
     idle: {
       on: {
         START: {
           target: "running",
-          action: () => ({
-            quote: pickRandomQuote().text,
-          }),
+          action: () => {
+            const { text, author } = pickRandomQuote();
+            return {
+              text,
+              author,
+            };
+          },
         },
       },
     },

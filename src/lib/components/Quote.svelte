@@ -2,14 +2,17 @@
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
-  import practiceMachine from "$lib/stores/practice";
+  import type { State } from "$lib/stores/practice";
 
-  $: ({ state, context } = $practiceMachine);
-  $: letters = context.quote.toLowerCase().split("");
+  export let text = "";
+  export let author = "";
+  export let state: State = "idle";
+
+  $: letters = text.toLowerCase().split("");
 
   $: wordIndex = 0;
-  $: initialCaretPosition = 0;
-  $: caretPosition = 0;
+  $: initialCaretPosition = { left: 0, top: 0 };
+  $: caretPosition = { left: 0, top: 0 };
   $: finish = wordIndex === letters.length;
 
   const dispatch = createEventDispatcher();
@@ -18,8 +21,11 @@
     dispatch("letterchange", { letter: letters[wordIndex] });
   };
 
-  const updateCaretPosition = (newPosition = 0) => {
-    caretPosition = newPosition - initialCaretPosition;
+  const updateCaretPosition = (newPosition = { left: 0, top: 0 }) => {
+    caretPosition = {
+      left: newPosition.left - initialCaretPosition.left,
+      top: newPosition.top - initialCaretPosition.top,
+    };
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -48,30 +54,37 @@
   const moveCaret = (letterFn = getCurrentLetter) => {
     const current = letterFn();
     if (current) {
-      const newPosition = current.getBoundingClientRect().right;
-      updateCaretPosition(newPosition);
+      const rect = current.getBoundingClientRect();
+      updateCaretPosition({
+        left: rect.right,
+        top: rect.top,
+      });
     }
   };
 
   const measureInitialCaretPosition = () => {
     const current = getCurrentLetter();
     if (current) {
-      initialCaretPosition = current.getBoundingClientRect().left;
+      const rect = current.getBoundingClientRect();
+      initialCaretPosition = {
+        left: rect.left,
+        top: rect.top,
+      };
     }
   };
 
   const onBack = () => {
     wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
-    practiceMachine.send("STOP");
+    dispatch("stop");
   };
 
   const onPause = () => {
-    practiceMachine.send("PAUSE");
+    dispatch("pause");
   };
 
   const onRestart = () => {
-    practiceMachine.send("RESUME");
+    dispatch("restart");
   };
 
   const focusInput = () => {
@@ -104,7 +117,7 @@
   <p>
     <Caret
       running={state === "running" && !finish}
-      style={`translate: ${caretPosition}px`}
+      style={`translate: ${caretPosition.left}px ${caretPosition.top}px;`}
     />
     {#each letters as letter, i}
       <letter
@@ -118,6 +131,9 @@
       <span>🎉</span>
     {/if}
   </p>
+  <footer>
+    <cite>— {author}</cite>
+  </footer>
 </blockquote>
 {#if finish}
   <button on:click={onBack}>Back</button>
@@ -125,10 +141,12 @@
 
 <style>
   blockquote {
+    --_font-size: 3rem;
     filter: blur(4px);
   }
 
   blockquote > p {
+    font-size: var(--_font-size);
     position: relative;
   }
 

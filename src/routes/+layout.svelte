@@ -19,5 +19,5 @@
   <slot />
 </main>
 <footer>
-  <small>Károly Török &copy; {year}</small>
+  <small>Károly Török &amp; Nimród Török &copy; {year}</small>
 </footer>

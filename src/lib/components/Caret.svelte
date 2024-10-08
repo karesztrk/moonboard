@@ -10,12 +10,10 @@
   caret {
     --_caret-color: var(--pico-contrast);
     position: absolute;
-    display: none;
     height: 1em;
-    width: 0.1em;
-    top: 0;
+    width: 3px;
+    top: 0.3em;
     left: 0;
-    font-size: 1.5rem;
     background-color: var(--_caret-color);
     transition: translate 200ms ease-out;
   }

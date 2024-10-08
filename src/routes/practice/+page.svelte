@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Practice from "$lib/components/Practice.svelte";
+  import Quote from "$lib/components/Quote.svelte";
   import type { Layout } from "$lib/types";
   import practiceMachine from "$lib/stores/practice";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
 
-  $: ({ state } = $practiceMachine);
+  $: ({ state, context } = $practiceMachine);
 
   $: layout = "Norman" as Layout;
 
@@ -25,6 +25,21 @@
 
     layout = data.get("layout") as Layout;
     practiceMachine.send("START");
+  };
+
+  const onPause = (e: Event) => {
+    e.stopPropagation();
+    practiceMachine.send("PAUSE");
+  };
+
+  const onRestart = (e: Event) => {
+    e.stopPropagation();
+    practiceMachine.send("RESUME");
+  };
+
+  const onStop = (e: Event) => {
+    e.stopPropagation();
+    practiceMachine.send("STOP");
   };
 
   onMount(() => {
@@ -54,6 +69,14 @@
       </div>
     </form>
   {:else}
-    <Practice on:letterchange={onLetterChange} />
+    <Quote
+      {state}
+      author={context.author}
+      text={context.text}
+      on:pause={onPause}
+      on:restart={onRestart}
+      on:stop={onStop}
+      on:letterchange={onLetterChange}
+    />
   {/if}
 </section>
