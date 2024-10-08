@@ -17,7 +17,8 @@
     "@lowlighter/matcha": "^3.0.0",
     "@picocss/pico": "^2.0.6",
     "@tauri-apps/api": ">=2.0.0-rc.0",
-    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0"
+    "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
+    "canvas-confetti": "^1.9.3"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.1",

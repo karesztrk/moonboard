@@ -3,6 +3,7 @@
   import practiceMachine, { type Event } from "$lib/stores/practice";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
+  import Confetti from "$lib/components/Confetti.svelte";
 
   $: ({ state, context } = $practiceMachine);
 
@@ -69,5 +70,8 @@
       on:finish={onEvent("FINISH")}
       on:letterchange={onLetterChange}
     />
+  {/if}
+  {#if state === "finished"}
+    <Confetti />
   {/if}
 </section>
