@@ -1,10 +1,9 @@
 <script lang="ts">
   let carretElement: HTMLDivElement;
-  export let running = false;
   export let style: string = "";
 </script>
 
-<caret class:running bind:this={carretElement} {style} />
+<caret bind:this={carretElement} {style} />
 
 <style>
   caret {
@@ -16,10 +15,6 @@
     left: 0;
     background-color: var(--_caret-color);
     transition: translate 200ms ease-out;
-  }
-
-  caret.running {
-    display: block;
     animation: linear 1s infinite alternate blink;
   }
 

@@ -12,6 +12,10 @@ class KeyboardService {
   async clear() {
     await invoke("clear", {});
   }
+
+  async animate() {
+    await invoke("animate", {});
+  }
 }
 
 export default KeyboardService;

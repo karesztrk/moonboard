@@ -1,7 +1,7 @@
 <script lang="ts">
   import Quote from "$lib/components/Quote.svelte";
   import type { Layout } from "$lib/types";
-  import practiceMachine from "$lib/stores/practice";
+  import practiceMachine, { type Event } from "$lib/stores/practice";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
 
@@ -27,19 +27,9 @@
     practiceMachine.send("START");
   };
 
-  const onPause = (e: Event) => {
+  const onEvent = (machineEvent: Event) => (e: Event) => {
     e.stopPropagation();
-    practiceMachine.send("PAUSE");
-  };
-
-  const onRestart = (e: Event) => {
-    e.stopPropagation();
-    practiceMachine.send("RESUME");
-  };
-
-  const onStop = (e: Event) => {
-    e.stopPropagation();
-    practiceMachine.send("STOP");
+    practiceMachine.send(machineEvent);
   };
 
   onMount(() => {
@@ -73,9 +63,10 @@
       {state}
       author={context.author}
       text={context.text}
-      on:pause={onPause}
-      on:restart={onRestart}
-      on:stop={onStop}
+      on:pause={onEvent("PAUSE")}
+      on:restart={onEvent("RESUME")}
+      on:stop={onEvent("STOP")}
+      on:finish={onEvent("FINISH")}
       on:letterchange={onLetterChange}
     />
   {/if}

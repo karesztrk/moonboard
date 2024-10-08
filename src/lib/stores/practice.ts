@@ -3,7 +3,7 @@ import quotes from "$lib/assets/quote.json";
 
 export type State = "idle" | "running" | "paused" | "finished";
 
-type Event = "START" | "PAUSE" | "RESUME" | "STOP";
+export type Event = "START" | "PAUSE" | "RESUME" | "STOP" | "FINISH";
 
 const pickRandomQuote = () => {
   return quotes[Math.floor(Math.random() * quotes.length)];
@@ -34,6 +34,7 @@ const practiceMachine = machine<State, Event, { text: string; author: string }>(
       on: {
         PAUSE: { target: "paused" },
         STOP: { target: "idle" },
+        FINISH: { target: "finished" },
       },
     },
     paused: {

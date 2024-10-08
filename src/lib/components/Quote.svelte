@@ -13,7 +13,6 @@
   $: wordIndex = 0;
   $: initialCaretPosition = { left: 0, top: 0 };
   $: caretPosition = { left: 0, top: 0 };
-  $: finish = wordIndex === letters.length;
 
   const dispatch = createEventDispatcher();
 
@@ -33,6 +32,9 @@
       wordIndex++;
       emitChangeEvent();
       moveCaret(getCurrentLetter);
+      if (wordIndex === letters.length) {
+        dispatch("finish");
+      }
     } else if (e.key === "Backspace" && wordIndex === 1) {
       onRestart();
       emitChangeEvent();
@@ -115,10 +117,11 @@
     on:focus={onRestart}
   />
   <p>
-    <Caret
-      running={state === "running" && !finish}
-      style={`translate: ${caretPosition.left}px ${caretPosition.top}px;`}
-    />
+    {#if state === "running"}
+      <Caret
+        style={`translate: ${caretPosition.left}px ${caretPosition.top}px;`}
+      />
+    {/if}
     {#each letters as letter, i}
       <letter
         class:correct={i < wordIndex}
@@ -127,7 +130,7 @@
         data-current={i === wordIndex ? "" : undefined}>{letter}</letter
       >
     {/each}
-    {#if finish}
+    {#if state === "finished"}
       <span>🎉</span>
     {/if}
   </p>
@@ -135,7 +138,7 @@
     <cite>— {author}</cite>
   </footer>
 </blockquote>
-{#if finish}
+{#if state === "finished"}
   <button on:click={onBack}>Back</button>
 {/if}
 
