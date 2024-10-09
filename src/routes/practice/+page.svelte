@@ -1,24 +1,26 @@
 <script lang="ts">
   import Quote from "$lib/components/Quote.svelte";
-  import practiceMachine, { type Event } from "$lib/stores/practice";
+  import gameMachine, { type Event } from "$lib/stores/game";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
   import Confetti from "$lib/components/Confetti.svelte";
+  import { type Layout, layouts } from "$lib/types";
+  import quotes from "$lib/assets/quote.json";
 
-  $: ({ state, context } = $practiceMachine);
-
-  const layouts = ["Norman", "Qwerty"];
-
-  type Layout = (typeof layouts)[number];
+  $: ({ state } = $gameMachine);
 
   $: layout = "Norman" as Layout;
 
-  const onLetterChange = (e: CustomEvent<{ letter: string }>) => {
+  $: quote = { text: "", author: "" };
+
+  const onLetterChange = (letter: string) => {
     $services.keyboard
       .clear()
-      .then(() =>
-        $services.keyboard.lightOnKey(e.detail.letter.toLowerCase(), layout),
-      );
+      .then(() => $services.keyboard.lightOnKey(letter.toLowerCase(), layout));
+  };
+
+  const pickRandomQuote = () => {
+    return quotes[Math.floor(Math.random() * quotes.length)];
   };
 
   const onSubmit = (e: SubmitEvent) => {
@@ -26,16 +28,17 @@
     const data = new FormData(target);
 
     layout = data.get("layout") as Layout;
-    practiceMachine.send("START");
+    quote = pickRandomQuote();
+    gameMachine.send("START");
   };
 
   const onEvent = (machineEvent: Event) => () => {
-    practiceMachine.send(machineEvent);
+    gameMachine.send(machineEvent);
   };
 
   onMount(() => {
     return () => {
-      practiceMachine.send("STOP");
+      gameMachine.send("STOP");
     };
   });
 </script>
@@ -62,13 +65,13 @@
   {:else}
     <Quote
       {state}
-      author={context.author}
-      text={context.text}
-      on:pause={onEvent("PAUSE")}
-      on:restart={onEvent("RESUME")}
-      on:stop={onEvent("STOP")}
-      on:finish={onEvent("FINISH")}
-      on:letterchange={onLetterChange}
+      author={quote.author}
+      text={quote.text}
+      onPause={onEvent("PAUSE")}
+      onResume={onEvent("RESUME")}
+      onStop={onEvent("STOP")}
+      onFinish={onEvent("FINISH")}
+      {onLetterChange}
     />
   {/if}
   {#if state === "finished"}

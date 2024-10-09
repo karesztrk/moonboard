@@ -1,12 +1,18 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
   import Caret from "./Caret.svelte";
   import type { State } from "$lib/stores/practice";
+  import HiddenInput from "./HiddenInput.svelte";
 
   export let text = "";
   export let author = "";
   export let state: State = "idle";
+  export let onPause: () => void;
+  export let onResume: () => void;
+  export let onStop: () => void;
+  export let onFinish: () => void;
+  export let onLetterChange: (letter: string) => void;
+  let inputElement: HTMLInputElement;
 
   $: letters = text.toLowerCase().split("");
 
@@ -14,10 +20,8 @@
   $: initialCaretPosition = { left: 0, top: 0 };
   $: caretPosition = { left: 0, top: 0 };
 
-  const dispatch = createEventDispatcher();
-
   const emitChangeEvent = () => {
-    dispatch("letterchange", { letter: letters[wordIndex] });
+    onLetterChange(letters[wordIndex]);
   };
 
   const updateCaretPosition = (newPosition = { left: 0, top: 0 }) => {
@@ -33,7 +37,7 @@
       emitChangeEvent();
       moveCaret(getCurrentLetter);
       if (wordIndex === letters.length) {
-        dispatch("finish");
+        onFinish();
       }
     } else if (e.key === "Backspace" && wordIndex === 1) {
       onRestart();
@@ -43,6 +47,11 @@
       emitChangeEvent();
       moveCaret(getLastGuess);
     }
+  };
+
+  const onRestart = () => {
+    wordIndex = 0;
+    updateCaretPosition(initialCaretPosition);
   };
 
   const getCurrentLetter = () => {
@@ -78,22 +87,12 @@
   const onBack = () => {
     wordIndex = 0;
     updateCaretPosition(initialCaretPosition);
-    dispatch("stop");
-  };
-
-  const onPause = () => {
-    dispatch("pause");
-  };
-
-  const onRestart = () => {
-    dispatch("restart");
+    onStop();
   };
 
   const focusInput = () => {
     inputElement.focus();
   };
-
-  let inputElement: HTMLInputElement;
 
   onMount(() => {
     emitChangeEvent();
@@ -105,17 +104,7 @@
 </script>
 
 <blockquote on:click={focusInput}>
-  <input
-    bind:this={inputElement}
-    type="text"
-    autocomplete="off"
-    autocapitalize="none"
-    autocorrect="off"
-    spellcheck="false"
-    on:keydown|preventDefault={onKeyDown}
-    on:blur={onPause}
-    on:focus={onRestart}
-  />
+  <HiddenInput bind:input={inputElement} {onKeyDown} {onPause} {onResume} />
   <p>
     {#if state === "running"}
       <Caret
@@ -155,18 +144,6 @@
 
   blockquote:focus-within {
     filter: none;
-  }
-
-  input {
-    display: inline-block;
-    position: absolute;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    height: 1;
-    width: 1;
-    margin: -1;
-    padding: 0;
-    border: 0;
   }
 
   .correct {

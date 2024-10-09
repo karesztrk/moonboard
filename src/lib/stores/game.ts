@@ -1,32 +1,17 @@
 import machine from "./machine";
-import quotes from "$lib/assets/quote.json";
 
 export type State = "idle" | "running" | "paused" | "finished";
 
 export type Event = "START" | "PAUSE" | "RESUME" | "STOP" | "FINISH";
 
-const pickRandomQuote = () => {
-  return quotes[Math.floor(Math.random() * quotes.length)];
-};
-
-const practiceMachine = machine<State, Event, { text: string; author: string }>(
+const gameMachine = machine<State, Event, {}>(
   "idle",
-  {
-    text: "",
-    author: "",
-  },
+  {},
   {
     idle: {
       on: {
         START: {
           target: "running",
-          action: () => {
-            const { text, author } = pickRandomQuote();
-            return {
-              text,
-              author,
-            };
-          },
         },
       },
     },
@@ -51,4 +36,4 @@ const practiceMachine = machine<State, Event, { text: string; author: string }>(
   },
 );
 
-export default practiceMachine;
+export default gameMachine;

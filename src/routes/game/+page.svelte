@@ -1,15 +1,13 @@
 <script lang="ts">
-  import practiceMachine from "$lib/stores/practice";
+  import gameMachine from "$lib/stores/game";
   import services from "$lib/stores/services";
   import { onMount } from "svelte";
-
-  const layouts = ["Norman", "Qwerty"];
-
-  type Layout = (typeof layouts)[number];
+  import { type Layout, layouts } from "$lib/types";
+  import Game from "$lib/components/Game.svelte";
 
   let layout = "Norman" as Layout;
 
-  $: ({ state, context } = $practiceMachine);
+  $: ({ state } = $gameMachine);
 
   const onSubmit = (e: SubmitEvent) => {
     const target = e.target as HTMLFormElement;
@@ -17,7 +15,7 @@
 
     layout = data.get("layout") as Layout;
     $services.keyboard.clear();
-    practiceMachine.send("START");
+    gameMachine.send("START");
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -25,12 +23,12 @@
   };
 
   const onStop = () => {
-    practiceMachine.send("FINISH");
+    gameMachine.send("STOP");
   };
 
   onMount(() => {
     return () => {
-      practiceMachine.send("STOP");
+      gameMachine.send("STOP");
     };
   });
 </script>
@@ -54,20 +52,6 @@
       <button type="submit">Play</button>
     </form>
   {:else}
-    Press any letter
-
-    <input
-      type="text"
-      autocomplete="off"
-      autocapitalize="none"
-      autocorrect="off"
-      spellcheck="false"
-      on:keydown|preventDefault={onKeyDown}
-    />
-    <button
-      on:click={() => {
-        practiceMachine.send("STOP");
-      }}>Stop</button
-    >
+    <Game {onKeyDown} {onStop} />
   {/if}
 </section>
