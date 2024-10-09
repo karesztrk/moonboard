@@ -12,6 +12,7 @@
     <ul>
       <li><a href="/practice">Practice</a></li>
       <li><a href="/animation">Animation</a></li>
+      <li><a href="/game">Game</a></li>
     </ul>
   </nav>
 </header>

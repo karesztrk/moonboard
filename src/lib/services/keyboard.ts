@@ -16,8 +16,13 @@ class KeyboardService {
   async wipeAnimation() {
     await invoke("wipe_animation", {});
   }
+
   async sequenceAnimation() {
     await invoke("sequence_animation", {});
+  }
+
+  async torpedoOnKey(key: string, layout: string) {
+    await invoke("torpedo_on_key", { key, layout });
   }
 }
 

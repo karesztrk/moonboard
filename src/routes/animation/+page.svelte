@@ -1,6 +1,5 @@
 <script lang="ts">
   import services from "$lib/stores/services";
-  import type { Animation } from "$lib/types";
 
   const animations = ["Sequence", "Wipe"] as const;
   const onSubmit = (e: SubmitEvent) => {
