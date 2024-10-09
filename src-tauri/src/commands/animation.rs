@@ -4,7 +4,7 @@ use moonsweeper::{
         KeyboardLayout::{self, Norman},
         KeyboardModel::Moonlander,
     },
-    service::{Animation, Clear, Sequence, SingleKey, Wipe},
+    service::{Animation, Clear, Sequence, SingleKey, Torpedo, Wipe},
 };
 use tauri::State;
 
@@ -53,5 +53,18 @@ pub async fn clear(app: State<'_, AppState>) -> Result<(), String> {
 pub async fn reset(app: State<'_, AppState>) -> Result<(), String> {
     let api = &app.api;
     let _ = api.restore_rgb_leds().await;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn torpedo_on_key(
+    app: State<'_, AppState>,
+    key: char,
+    layout: KeyboardLayout,
+) -> Result<(), String> {
+    let moonlander = Keyboard::new(Moonlander, layout);
+    let animation = Torpedo::new(moonlander, key);
+    let api = &app.api;
+    animation.run(api).await;
     Ok(())
 }

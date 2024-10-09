@@ -24,7 +24,8 @@ pub fn run() {
             commands::animation::sequence_animation,
             commands::animation::light_on_key,
             commands::animation::clear,
-            commands::animation::reset
+            commands::animation::reset,
+            commands::animation::torpedo_on_key,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
