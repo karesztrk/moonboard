@@ -76,4 +76,15 @@ impl Keyboard {
         }
         XX
     }
+
+    pub fn get_char_coord(&self, char: char) -> Coord {
+        for x in 0..util::MODEL_LAYOUT.len() {
+            for y in 0..util::MODEL_LAYOUT[x].len() {
+                if self.key_layout[x][y] == char {
+                    return Coord { x, y };
+                }
+            }
+        }
+        Coord { x: XX, y: XX }
+    }
 }

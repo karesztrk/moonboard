@@ -33,13 +33,20 @@ pub struct Wipe {
 }
 
 pub struct SingleKey {
-    keyboard: Keyboard,
-    char: char,
+    from: usize,
     color: Color,
 }
 
 pub struct Clear {
     color: Color,
+}
+
+pub struct Torpedo {
+    color: Color,
+    keyboard: Keyboard,
+    from: Coord,
+    speed: f64,
+    velocity: f64,
 }
 
 impl Clear {
@@ -57,10 +64,10 @@ impl SingleKey {
         let r = rng.gen_range(0..255);
         let g = rng.gen_range(0..255);
         let b = rng.gen_range(0..255);
+        let from = keyboard.get_char_position(char);
         Self {
             color: Color { r, g, b },
-            keyboard,
-            char,
+            from,
         }
     }
 }
@@ -126,6 +133,53 @@ impl Sequence {
 
     fn get_position(&self, coord: Coord) -> usize {
         self.keyboard.get_position(coord)
+    }
+}
+
+impl Torpedo {
+    pub fn new(keyboard: Keyboard, char: char) -> Self {
+        let mut rng = rand::thread_rng();
+
+        let r = rng.gen_range(0..255);
+        let g = rng.gen_range(0..255);
+        let b = rng.gen_range(0..255);
+        let from = keyboard.get_char_coord(char);
+        Self {
+            color: Color { r, g, b },
+            keyboard,
+            from,
+            speed: 0.25,
+            velocity: 5.0,
+        }
+    }
+
+    fn get_position(&self, coord: Coord) -> usize {
+        self.keyboard.get_position(coord)
+    }
+
+    async fn clear_row(&self, app: &Kontroll, x: usize) {
+        let position = self.get_position(Coord { x, y: self.from.y });
+        if position != util::XX {
+            let _ = app.set_rgb_led(position, 0, 0, 0, 0).await;
+        }
+    }
+
+    async fn launch(&self, app: &Kontroll) {
+        for x in (0..self.from.x + 1).rev() {
+            let position = self.get_position(Coord { x, y: self.from.y });
+            if position != util::XX {
+                let Color { r, g, b } = self.color;
+                let _ = app.set_rgb_led(position, r, g, b, 0).await;
+            }
+
+            let flash_speed = (self.speed / 2.0 * 1000.0 - x as f64 * self.velocity) as u64;
+
+            std::thread::sleep(std::time::Duration::from_millis(flash_speed));
+
+            if x < self.from.x + 1 {
+                let _ = self.clear_row(app, x).await;
+            }
+        }
     }
 }
 
@@ -243,11 +297,8 @@ impl Animation for Wipe {
 impl Animation for SingleKey {
     async fn run(&self, app: &Kontroll) {
         for _ in 0..3 {
-            let position = self.keyboard.get_char_position(self.char);
-            if position != util::XX {
-                let Color { r, g, b } = self.color;
-                let _ = app.set_rgb_led(position, r, g, b, 0).await;
-            }
+            let Color { r, g, b } = self.color;
+            let _ = app.set_rgb_led(self.from, r, g, b, 0).await;
         }
     }
 
@@ -260,6 +311,16 @@ impl Animation for Clear {
     async fn run(&self, app: &Kontroll) {
         let Color { r, g, b } = self.color;
         let _ = app.set_rgb_all(r, g, b, 0).await;
+    }
+
+    async fn clean(&self, app: &Kontroll) {
+        let _ = app.restore_rgb_leds().await;
+    }
+}
+
+impl Animation for Torpedo {
+    async fn run(&self, app: &Kontroll) {
+        self.launch(app).await;
     }
 
     async fn clean(&self, app: &Kontroll) {
